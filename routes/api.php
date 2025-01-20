@@ -2,18 +2,27 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\V1\OrderController;
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware(['auth:sanctum']);
 
 Route::prefix('v1')->group(function () {
-    Route::get('/', function () {
-        throw new Exception("Error Processing Request", 1);
-        
 
-        return response()->api([
-            'message' => 'Welcome to the API',
-        ]);
+    Route::prefix('/user')->group(function () {
+        Route::middleware(['auth:sanctum'])->group(function() {
+            Route::get('/', [AuthController::class, 'get']);
+            Route::patch('/', [AuthController::class, 'update']);
+            Route::delete('/', [AuthController::class, 'destroy']);
+        });
+
+        Route::post('/', [AuthController::class, 'store']);
     });
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::resource('orders', OrderController::class)->except(['create', 'edit']);
+        Route::resource('products', OrderController::class)->except(['create', 'edit']);
+    });
+
 });
