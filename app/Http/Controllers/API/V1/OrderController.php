@@ -15,11 +15,39 @@ class OrderController extends \App\Http\Controllers\Controller
             if($request->has('show_deleted') && $request->show_deleted)
                 $query->withTrashed();
 
-        })->filtered()->paginate(10);
+        })->paginate(10);
 
-        return response()->api(
-            $orders
-        );
+        $meta = [
+            'page' => [
+                'current' => (int)$request->page,
+                'per_page' => 10,
+                'form' => $orders->firstItem(),
+                'to' => $orders->lastItem(),
+                'total' => $orders->total(),
+                'last-page' => $orders->lastPage()
+            ]
+        ];
+
+        $links = [
+            'first' => $orders->url(1),
+            'last' => $orders->url($orders->lastPage()),
+            'prev' => $orders->previousPageUrl(),
+            'next' => $orders->nextPageUrl()
+        ];
+
+        $data = $orders->map(function($order) {
+            return $order->filtered();
+        });
+
+        /* $formatted_response = Order::formatted($request, $orders);
+
+        dd($formatted_response); */
+
+        return response()->api([
+            'meta' => $meta,
+            'links' => $links,
+            'data' => $data
+        ]);
     }
 
     /**

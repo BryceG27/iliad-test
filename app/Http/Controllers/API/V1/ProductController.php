@@ -14,6 +14,10 @@ class ProductController extends \App\Http\Controllers\Controller
         
     }
 
+    public function show() {
+        
+    }
+
     public function update() {
         
     }

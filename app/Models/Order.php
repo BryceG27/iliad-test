@@ -46,11 +46,26 @@ class Order extends Model
     public function filtered() {
         $costs = 0;
 
-        $this->products()->map( function($product) use (&$costs) {
+        $this->products->map( function($product) use (&$costs) {
             $costs += $product->price * $product->pivot->quantity;
         });
 
-        return $this;
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
+            'date' => $this->date,
+            'status' => $this->get_status_description(),
+            'costs' => $costs,
+            'products' => $this->products->map(function($product) {
+                return [
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'quantity' => $product->pivot->quantity,
+                    'available_quantity' => $product->available_quantities()
+                ];
+            })
+        ];
     }
 
     /**
