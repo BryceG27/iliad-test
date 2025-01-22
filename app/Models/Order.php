@@ -43,6 +43,7 @@ class Order extends Model
         return $response;
     }
 
+    /* Pivot quantity not working */
     public function filtered() {
         $costs = 0;
 
@@ -74,11 +75,13 @@ class Order extends Model
     public static function validate(Request $request)
     {
         return $request->validate([
-            'user_id' => 'required|exists:users,id', // The user insert is required and must exist in the users table
+            'user_id' => '', // The user insert is required and must exist in the users table
             'name' => 'required|string',
             'description' => 'required|string',
             'date' => 'required|date',
-            'status' => ''
+            'status' => '',
+            'products.*.id' => 'required|exists:products,id', // The product id is required and must exist in the products table
+            'products.*.quantity' => 'required|numeric' // The quantity of the product is required and must be a number
         ]);
     }
 

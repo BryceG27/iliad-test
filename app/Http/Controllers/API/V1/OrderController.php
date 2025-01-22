@@ -63,7 +63,25 @@ class OrderController extends \App\Http\Controllers\Controller
     }
 
     public function store(Request $request) {
-        
+        $user = Auth::user();
+        $data = Order::validate($request);
+        $data['user_id'] = $user->id;
+
+        if($data['date'] == null)
+            $data['date'] = date('Y-m-d');
+
+        $order = Order::create($data);
+
+        foreach ($data['products'] as $product) {
+            $order->products()->attach($product['id'], [
+                'quantity' => $product['quantity']
+            ]);
+        }
+
+        return response()->api([
+            'message' => "Order created",
+            'order' =>  $order->filtered()
+        ]);
     }
 
     public function update(Order $order, Request $request) {
@@ -71,7 +89,14 @@ class OrderController extends \App\Http\Controllers\Controller
     }
 
     public function destroy(Order $order) {
-        
+        $order->update([
+            'status' => 2
+        ]);
+        $order->delete();
+
+        return response()->api([
+            'message' => "Order deleted"
+        ]);
     }
 
     /**

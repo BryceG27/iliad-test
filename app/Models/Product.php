@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
@@ -12,16 +13,18 @@ class Product extends Model
         'name',
         'price',
         'quantity',
-        'available_quantity'
     ];
 
-    public static function validate(Request $request)
+    public static function validate(Request $request, $id = null)
     {
+        /**
+         * If the id is null, the call is a post then the name is required, otherwise it is a patch and the name is not required 
+         * The name must be unique
+         * */
         return $request->validate([
-            'name' => 'required_if:id,null|string', // If the id is null, the call is a post then the name is required, otherwise it is a patch and the name is not required
+            'name' => [Rule::requiredIf($id == null), 'string', Rule::unique('products')->ignore($id)],
             'price' => 'nullable|numeric',
             'quantity' => 'nullable|numeric',
-            'available_quantity' => 'nullable|numeric'
         ]);
     }
 
@@ -35,11 +38,21 @@ class Product extends Model
         ];
     }
 
+    /* WIP */
     public function available_quantities() {
-        dd($this->orders()->where('status', 0));
+        $qties = 0;
 
-        return 1;
-        return $this->available_quantity;
+        // Get the quantities of the product in the orders where the status of the order is 0
+        /* foreach ($this->orders as $order) {
+            if ($order->status == 0) {
+                dump($order->pivot->quantity);
+                $qties += $order->pivot->quantity;
+            }
+        }
+
+        die(); */
+
+        return $qties;
     }
 
     /**

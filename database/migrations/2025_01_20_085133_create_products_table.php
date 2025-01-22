@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('name');
             $table->float('price')->default(0.0);
             $table->float('quantity')->default(0.0);
-            $table->float('available_quantity')->default(0.0);
             $table->timestamps();
         });
     }
