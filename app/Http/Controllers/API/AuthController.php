@@ -50,14 +50,10 @@ class AuthController extends Controller
     }
     
     public function update(Request $request) {
-        try {
-            $validation = $request->validate([
-                'name' => 'required',
-                'email' => 'required|email',
-            ]);
-        } catch (\Throwable $th) {
-            return response()->api(null, "Invalid data", $th->errors());
-        }
+        $validation = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+        ]);
         
         Auth::user()->update([
             'name' => $validation['name'],
@@ -70,15 +66,11 @@ class AuthController extends Controller
     }
 
     public function store(Request $request) {
-        try {
-            $validation = $request->validate([
-                'name' => 'required',
-                'email' => 'required|email',
-                'password' => 'required',
-            ]);
-        } catch (\Throwable $th) {
-            return response()->api(null, "Invalid data", $th->errors());
-        }
+        $validation = $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
         
         $user = User::create([
             'name' => $validation['name'],
@@ -93,6 +85,6 @@ class AuthController extends Controller
     }
     
     public function destroy() {
-
+        dd(Auth::user());
     }
 }

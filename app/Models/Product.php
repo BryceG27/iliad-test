@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Testing\Fluent\Concerns\Has;
 
 class Product extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'price',
@@ -40,17 +44,12 @@ class Product extends Model
 
     /* WIP */
     public function available_quantities() {
-        $qties = 0;
+        $qties = $this->quantity;
 
         // Get the quantities of the product in the orders where the status of the order is 0
-        /* foreach ($this->orders as $order) {
-            if ($order->status == 0) {
-                dump($order->pivot->quantity);
-                $qties += $order->pivot->quantity;
-            }
+        foreach ($this->orders->where('status', 0) as $order) {
+            $qties -= $order->pivot->quantity;
         }
-
-        die(); */
 
         return $qties;
     }
@@ -60,6 +59,6 @@ class Product extends Model
      */
     public function orders(): BelongsToMany
     {
-        return $this->belongsToMany(Order::class);
+        return $this->belongsToMany(Order::class)->withPivot('quantity');
     }
 }

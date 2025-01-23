@@ -52,18 +52,17 @@ class Order extends Model
         });
 
         return [
-            'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             'date' => $this->date,
             'status' => $this->get_status_description(),
             'costs' => $costs,
+            'type' => $this->type == 0 ? 'To Customer' : 'From Supplier',
             'products' => $this->products->map(function($product) {
                 return [
                     'name' => $product->name,
                     'price' => $product->price,
                     'quantity' => $product->pivot->quantity,
-                    'available_quantity' => $product->available_quantities()
                 ];
             })
         ];
@@ -98,6 +97,7 @@ class Order extends Model
      */
     public function products(): BelongsToMany
     {
-        return $this->belongsToMany(Product::class);
+        return $this->belongsToMany(Product::class)->withPivot('quantity');
     }
+    
 }

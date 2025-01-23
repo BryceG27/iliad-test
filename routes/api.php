@@ -22,6 +22,13 @@ Route::prefix('/user')->group(function () {
 Route::prefix('v1')->group(function () {
     Route::middleware(['auth:sanctum'])->group(function () {
         Route::resource('orders', OrderController::class)->except(['create', 'edit']);
+        Route::put('/orders/{order}/confirm', [OrderController::class, 'confirm']);
+
         Route::resource('products', ProductController::class)->except(['create', 'edit']);
     });
+});
+
+Route::get('/testing', function() {
+    $product = \App\Models\Product::find(1);
+    $product->available_quantities();
 });

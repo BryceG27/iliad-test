@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\V1;
 
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,6 +15,15 @@ class OrderController extends \App\Http\Controllers\Controller
             // If the request has the show_deleted key and the value is true, then the query will include the deleted orders of the user
             if($request->has('show_deleted') && $request->show_deleted)
                 $query->withTrashed();
+
+            if($request->has('date'))
+                $query->whereDate('date', $request->date);
+
+            if($request->has('name'))
+                $query->where('name', 'like', "%{$request->name}%");
+            
+            if($request->has('description'))
+                $query->where('description', 'like', "%{$request->description}%");
 
         })->paginate(10);
 
@@ -39,14 +49,10 @@ class OrderController extends \App\Http\Controllers\Controller
             return $order->filtered();
         });
 
-        /* $formatted_response = Order::formatted($request, $orders);
-
-        dd($formatted_response); */
-
         return response()->api([
             'meta' => $meta,
             'links' => $links,
-            'data' => $data
+            'orders' => $data
         ]);
     }
 
@@ -58,21 +64,31 @@ class OrderController extends \App\Http\Controllers\Controller
      */
     public function show(Order $order) {
         return response()->api(
-            $order->filtered()->load('products')
+            $order->filtered()
         );
     }
 
+    /**
+     * Store a new order
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function store(Request $request) {
         $user = Auth::user();
         $data = Order::validate($request);
         $data['user_id'] = $user->id;
 
-        if($data['date'] == null)
+        if($data['date'] == null) // If the date is not provided, the current date will be used
             $data['date'] = date('Y-m-d');
 
         $order = Order::create($data);
 
         foreach ($data['products'] as $product) {
+            $product = Product::find($product['id']);
+            if($product->available_quantities() < $product['quantity'])
+                return response()->api(null, "The product \"{$product->name}\" does not have enough quantities", [200]);
+
             $order->products()->attach($product['id'], [
                 'quantity' => $product['quantity']
             ]);
@@ -84,31 +100,102 @@ class OrderController extends \App\Http\Controllers\Controller
         ]);
     }
 
-    public function update(Order $order, Request $request) {
-        
-    }
 
+    /**
+     * Delete the order
+     * If the order is already confirmed, the quantities of the products in the order will be restored
+     * 
+     * @param Order $order
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function destroy(Order $order) {
+        if($order->status == 1) {
+            $order->products->map(function($product) use ($order) {
+                if($order->type == 0) 
+                    $new_quantity = $product->quantity + $product->pivot->quantity;
+                else if($order->type == 1)
+                    $new_quantity = $product->quantity - $product->pivot->quantity;
+    
+                $product->update([
+                    'quantity' => $new_quantity
+                ]);
+            });
+        }
+
         $order->update([
             'status' => 2
         ]);
         $order->delete();
 
+        return response()->api();
+    }
+
+    /**
+     * Update the order
+     * 
+     * @param Order $order
+     * @param Request $request
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Order $order, Request $request) {
+        if($order->status == 1)
+            return response()->api(null, "The order is already confirmed. Update not available", [200]);
+
+        $data = Order::validate($request);
+
+        $order->update($data);
+
+        $formatted_products = [];
+        $response_msg = "Order updated";
+
+        foreach ($data['products'] as $product_data) {
+            $product = Product::find($product_data['id']);
+
+            if($product->available_quantities() < $product_data['quantity']) {
+                $response_msg .= "\nThe product --- {$product->name} --- does not have the request quantities in stock. Quantity ordered: {$product->available_quantities()}.";
+
+                $formatted_products[$product->id] = [ 'quantity' => $product->available_quantities() ];
+            } else {
+                $formatted_products[$product->id] = [ 'quantity' => $product_data['quantity'] ];
+            }
+        }
+
+        $order->products()->sync($formatted_products);
+
         return response()->api([
-            'message' => "Order deleted"
+            'message' => $response_msg,
+            'order' => $order->filtered()
         ]);
     }
 
     /**
-     *  Change status of the order:
-     * 0 - Pending      --- Order pending means the product available quantities will be anavailable
-     * 1 - Completed    --- Order completed means the product available quantities will be reduced
-     * 2 - Cancelled
+     * Confirm the order
+     * If the order type is 0, the quantities of the products in the order will be deducted from the product quantities
+     * If the order type is 1, the quantities of the products in the order will be added to the product quantities
      * 
      * @param Order $order
-     * @return \Illuminate\Http\JsonResponse with TRUE if the status was changed successfully, FALSE otherwise
-    * */
-    public function change_status(Order $order) {
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function confirm(Order $order) {
+        $order->update([
+            'status' => 1
+        ]);
+
+        $order->products->map(function($product) use ($order) {
+            if($order->type == 0) 
+                $new_quantity = $product->quantity - $product->pivot->quantity;
+            else if($order->type == 1)
+                $new_quantity = $product->quantity + $product->pivot->quantity;
+
+            $product->update([
+                'quantity' => $new_quantity
+            ]);
+        });
         
+
+        return response()->api([]);
     }
 }
