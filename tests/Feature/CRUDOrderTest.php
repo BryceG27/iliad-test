@@ -154,7 +154,6 @@ it('can delete an order', function() {
             'success' => true,
             'error_message' => null,
             'errors' => null,
-            'data' => null
         ]);
 });
 

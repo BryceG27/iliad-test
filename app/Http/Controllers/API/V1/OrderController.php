@@ -128,7 +128,9 @@ class OrderController extends \App\Http\Controllers\Controller
         ]);
         $order->delete();
 
-        return response()->api();
+        return response()->api([
+            'message' => "Order deleted"
+        ]);
     }
 
     /**
@@ -196,6 +198,8 @@ class OrderController extends \App\Http\Controllers\Controller
         });
         
 
-        return response()->api([]);
+        return response()->api([
+            'message' => "Order confirmed",
+        ]);
     }
 }

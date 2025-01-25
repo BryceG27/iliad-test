@@ -22,7 +22,7 @@ class AuthController extends Controller
             return response()->api(null, 'Invalid credentials');
         }
 
-        return response()->json([
+        return response()->api([
             'token' => Auth::user()->createToken('authToken')->plainTextToken,
         ]);
     }
