@@ -2,12 +2,13 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Validation\ValidationException;
-use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\Routing\Exception\RouteNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -42,5 +43,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $exceptions->render(function (MethodNotAllowedHttpException $e, Request $request) {
             return response()->api(null, 'Method not allowed.', [$e->getMessage(), 405]);
+        });
+
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if($request->is('api/*')) {
+                return response()->api(null, 'Unauthenticated.', [$e->getMessage(), 401]);
+            }
         });
     })->create();
