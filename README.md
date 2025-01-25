@@ -94,7 +94,7 @@ Both commands will create a new user with <em>test@example.com</em> as email and
 The <em>DevSeeder</em> option will create some products to help you start create some orders.
 
 ## The APIs
-In the document root you can find a postman collection of APIs named <strong>TECH-TEST.postman_collection.json</strong> that is ready to be imported. 
+In the document root you can find a postman collection of APIs named <strong>Tech-Test.postman_collection.json</strong> that is ready to be imported. 
 
 ### Before start
 <ul>
