@@ -1,6 +1,9 @@
 <?php
 
 use App\Models\User;
+use Illuminate\Foundation\Testing\WithFaker;
+
+uses (WithFaker::class);
 
 test('users can authenticate using the login screen', function () {
     $user = User::factory()->create();
@@ -32,4 +35,18 @@ test('users can logout', function () {
 
     $this->assertGuest();
     $response->assertNoContent();
+});
+
+
+test('user is not logged', function() {
+    $response = $this->post('/api/v1/products', [
+        'name' => $this->faker->name,
+        'price' => $this->faker->randomFloat(3),
+        'quantity' => $this->faker->numberBetween(0, 100),
+    ])->assertJson([
+        'success' => false,
+        'error_message' => 'Unauthenticated.',
+        'errors' => ['Unauthenticated.', 401],
+        'data' => null,
+    ]);
 });

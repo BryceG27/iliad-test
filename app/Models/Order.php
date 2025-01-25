@@ -52,6 +52,7 @@ class Order extends Model
         });
 
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
             'date' => $this->date,
@@ -79,6 +80,7 @@ class Order extends Model
             'description' => 'required|string',
             'date' => 'required|date',
             'status' => '',
+            'products' => 'required|array', // The products are required and must be an array
             'products.*.id' => 'required|exists:products,id', // The product id is required and must exist in the products table
             'products.*.quantity' => 'required|numeric' // The quantity of the product is required and must be a number
         ]);

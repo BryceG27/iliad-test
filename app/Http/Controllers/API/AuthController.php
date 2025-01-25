@@ -85,6 +85,13 @@ class AuthController extends Controller
     }
     
     public function destroy() {
-        dd(Auth::user());
+        $user = Auth::user();
+        $user->logout();
+        $user->tokens()->delete();
+        $user->delete();
+        
+        return response()->api([
+            'message' => 'User deleted',
+        ]);
     }
 }

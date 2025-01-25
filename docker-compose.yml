@@ -41,6 +41,19 @@ services:
       - "${DB_PORT_EXPOSED:-3306}:3306"
     networks:
       - network
+  db_test:
+    image: mysql:5.7
+    platform: linux/amd64 
+    container_name: mysql_test
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: "${DB_DATABASE:-laravel_db}"
+      MYSQL_USER: "${DB_USERNAME:-laravel_user}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-laravel_password}"
+    ports:
+      - "3307:3306"
+    networks:
+      - network
 
   composer:
     image: composer:2
