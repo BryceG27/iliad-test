@@ -86,8 +86,10 @@ class OrderController extends \App\Http\Controllers\Controller
 
         foreach ($data['products'] as $product_data) {
             $product = Product::find($product_data['id']);
-            if($product->available_quantities() < $product_data['quantity'])
+            if($product->available_quantities() < $product_data['quantity']) {
+                $order->delete();
                 return response()->api(null, "The product \"{$product->name}\" does not have enough quantities", [200]);
+            }
 
             $order->products()->attach($product->id, [
                 'quantity' => $product_data['quantity']

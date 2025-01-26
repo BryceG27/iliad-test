@@ -2,12 +2,12 @@
 
 ## Setting-up development environment
 
-- The first step is to create a copy of the dotfile `.env.example` and rename it as `.env`. A simple `cp .env.example .env` should do the job.
+The first step is to create a copy of the dotfile `.env.example` and rename it as `.env`. A simple `cp .env.example .env` should do the job.
 
 ### With Docker (suggested)
 
 #### Things to know before starting with Docker
-The <code>.env</code> file is setted to map ports for a multi-environment system: change <code>*_PORT_EXPOSED</code> to your port mapping preferences
+The `.env` file is setted to map ports for a multi-environment system: change `*_PORT_EXPOSED` to your port mapping preferences
 
 #### Commands list
 
@@ -79,7 +79,7 @@ In case the Makefile and the make command won't work <em>(or you don't want to u
 
 ## What now
 At the moment your app should be ready to use and you can verify it looking for the home page (<a href="localhost:8000" _target="blank">localhost:8000</a>) where you will find the version of the installed Laravel.<br>
-From now on you starting to use all the API written in the <strong style="font-size: 16px">The APIs</strong> paragraph, but you could make just another step that could make your testing just a little easier seeding the database:
+From now on you can start using all the APIs written in the <strong style="font-size: 16px">The APIs</strong> paragraph, but you could make just another step that could make your testing just a little easier seeding the database:
 
 In the shell of your Docker container or your local directory you can:
 <ul>
