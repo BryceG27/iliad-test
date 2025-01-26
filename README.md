@@ -259,7 +259,8 @@ In the document root you can find a postman collection of APIs named <strong>Tec
 
 #### The testing environment is setted to be use out of the box with Docker. In case you are not using Docker, follow this steps:
 
-- You can change <code>DB_CONNECTION</code> parameter to sqlite and comment all the rest of <code>DB_*</code> parameters to have a simple to use database.
+- In the `.env.example` file you can change <code>DB_CONNECTION</code> parameter to sqlite and comment all the rest of <code>DB_*</code> parameters to have a simple to use database.
+- Watch out! Every edit to the `.env*` files needs to be done with the app container shutted down or restarted!
 
 #### OR
 
