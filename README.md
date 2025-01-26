@@ -2,12 +2,12 @@
 
 ## Setting-up development environment
 
-- The first step is to create a copy of the dotfile `.env.example` and rename it as `.env`. A simple `cp .env.example .env` should do the job.
+The first step is to create a copy of the dotfile `.env.example` and rename it as `.env`. A simple `cp .env.example .env` should do the job.
 
 ### With Docker (suggested)
 
 #### Things to know before starting with Docker
-The <code>.env</code> file is setted to map ports for a multi-environment system: change <code>*_PORT_EXPOSED</code> to your port mapping preferences
+The `.env` file is setted to map ports for a multi-environment system: change `*_PORT_EXPOSED` to your port mapping preferences
 
 #### Commands list
 
