@@ -13,7 +13,7 @@ test('new users can register', function () {
 });
 
 test("new users can register with api route", function() {
-    $response = $this->post('/api/register', [
+    $response = $this->post('/api/user', [
         'name' => 'Test User 2',
         'email' => 'test2@example.com',
         'password' => 'supersecurepassword',
